@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+{% block content %}
+  <div class="jumbo">
+    <form action="/umbral" method="post">
+    <div>
+        <label for="name">Umbral histórico mínimo(mayores que):</label>
+        <input type="number" step="0.01" min="0" max="100" name = "umbral_minimo" />
+    </div>
+    <div>
+        <label for="name">Umbral histórico máximo(menores que):</label>
+        <input type="number" step="0.01" min="0" max="100" name = "umbral_maximo" />
+    </div>
+    <div class="button">
+        <button type="submit">Actualizar</button>
+    </div>
+    {% block umbrales %}
+    {% endblock %}
+    </form>
+    <form action="/media" method="post">
+    <div class="button">
+        <button type="submit">Media</button>
+    </div>
+    </form>
+    {% block average %}
+    {% endblock %}
+    <h2>Números generados<h2>
+    <h3><div class="container"  id="numeros_generados">
+	<table>
+	<tr>
+	  <td><strong>&nbsp;&nbsp;&nbsp;Número&nbsp;&nbsp;&nbsp;</strong></td>
+	  <td><strong>&nbsp;&nbsp;&nbsp;Hora&nbsp;&nbsp;&nbsp;</strong></td>
+      <td><strong>&nbsp;&nbsp;&nbsp;Fecha&nbsp;&nbsp;&nbsp;</strong></td>
+	</tr>
+	{% block numbers %}
+      	{% endblock %}
+	</table>
+    </div><h3>
+    <h3>Practica de computacion de Alejandro Baldominos Delgado<h3>
+  </div>
+{% endblock %}
