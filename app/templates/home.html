@@ -2,7 +2,6 @@
 {% block numbers %}
     {% for document in cursor %}
     <tr><td>{{document["number"]}}</td><td>{{document["hour"]}}</td><td>{{document["date"]}}</td></tr>
-    <div class=flash>{{ message }}</div>
     {% endfor %}
 {% endblock %}
 {% block average %}
