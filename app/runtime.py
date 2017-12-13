@@ -1,23 +1,24 @@
 import urllib2
-
+import re
+import datetime
+from pymongo import MongoClient
+from beebotte import *
 url = 'http://www.numeroalazar.com.ar/'
 
 respuesta = urllib2.urlopen(url)
 contenidoWeb = respuesta.read()
-import re
 
-#match_pattern = re.search('head', contenidoWeb)
-#print match_pattern
+
 elemento=re.findall('\d?\d?\d[.]\d\d<br>', contenidoWeb)
-#with open('/home/user/flaskapp/app/dataBase.txt','a') as outFile:
-#    outFile.write(elemento[0].strip('<br>')+'\n')
-import datetime
+
+formato_fecha="%d/%m/%y"
+formato_hora="%H:%M"
 fecha=datetime.datetime.utcnow()
-from pymongo import MongoClient
+
 client = MongoClient()
 db = client.test
-result = db.numbers.insert_one({"number" : float(elemento[0].strip('<br>')),"date" : fecha})
-from beebotte import *
+result = db.numbers.insert_one({"number" : float(elemento[0].strip('<br>')),"date" : fecha.strftime(formato_fecha),"hour" : fecha.strftime(formato_hora)})
+
 
 _hostname   = 'api.beebotte.com'
 _token      = '1510099700783_0F8OPqJwsCC25m20'

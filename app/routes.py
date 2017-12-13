@@ -1,39 +1,21 @@
 from flask import Flask,flash, render_template, request
 from beebotte import *
+from pymongo import MongoClient
 app = Flask(__name__)
 app.secret_key = 'some_secret'
 flag=1
+client = MongoClient()
+db = client.test
 @app.route('/')
 def home():
-    formato_hora="%H:%M"
-    formato_fecha="%d/%m/%y"
-    archivo = open("./templates/home.html", "w")
-    archivo.write('{% extends "numbers_layout.html" %}\n{% block numbers %}\n')
-    from pymongo import MongoClient
-    client = MongoClient()
     db = client.test
     cursor = db.numbers.find()
-    for document in cursor:
-        archivo.write("<tr><td>"+str(document["number"])+"</td><td>"+str(document["date"].strftime(formato_hora))+"</td><td>"+str(document["date"].strftime(formato_fecha))+"</td></tr>")
-    archivo.write("\n{% endblock %}\n")
-    archivo.close() 
-    return render_template('home.html')
+    return render_template('home.html',cursor=cursor,av=0, umbral=0)
 
 @app.route('/media',methods = ['POST', 'GET'])
 def average():
     global flag
-    formato_hora="%H:%M"
-    formato_fecha="%d/%m/%y"
     if request.method == 'POST':
-        archivo = open("./templates/home.html", "w")
-        archivo.write('{% extends "numbers_layout.html" %}\n{% block numbers %}\n')
-        from pymongo import MongoClient
-        client = MongoClient()
-        db = client.test
-        cursor = db.numbers.find()
-        for document in cursor:
-            archivo.write("<tr><td>"+str(document["number"])+"</td><td>"+str(document["date"].strftime(formato_hora))+"</td><td>"+str(document["date"].strftime(formato_fecha))+"</td></tr>")
-        archivo.write("\n{% endblock %}\n")
         suma=0
         cantidad=0
         if flag == 1:
@@ -42,7 +24,7 @@ def average():
                 suma=suma+document["number"]
                 cantidad=cantidad+1
             media=suma/cantidad
-            archivo.write('{% block average %}\n<tr><td>La media calculada por MongoDB es '+str(media)+'</td></tr>\n{% endblock %}')
+            data_base="MongoDB"
             flag=0
         else:
             _hostname   = 'api.beebotte.com'
@@ -53,16 +35,12 @@ def average():
                 suma=suma+document["data"]
                 cantidad=cantidad+1
             media=suma/cantidad
-            archivo.write('{% block average %}\n<tr><td>La media calculada por Beebotte es '+str(media)+'</td></tr>\n{% endblock %}')
+            data_base="Beebotte"
             flag=1
-        archivo.close() 
-        return render_template('home.html')
-    else:
-        return 'El umbral es de hola'
+        cursor = db.numbers.find()
+        return render_template('home.html',cursor=cursor,av=1, umbral=0, media=media,data_base=data_base)
 @app.route('/umbral',methods = ['POST', 'GET'])
 def umbral():
-    formato_hora="%H:%M"
-    formato_fecha="%d/%m/%y"
     if request.method == 'POST':
         umbral_minimo = request.form['umbral_minimo']
         umbral_maximo = request.form['umbral_maximo']        
@@ -70,22 +48,15 @@ def umbral():
             umbral_minimo=0
         if len(str(umbral_maximo))==0:
             umbral_maximo=100
-        archivo = open("./templates/home.html", "w")
-        archivo.write('{% extends "numbers_layout.html" %}\n{% block numbers %}\n')
-        from pymongo import MongoClient
-        client = MongoClient()
-        db = client.test
         cursor = db.numbers.find({"number": {"$gt": float(umbral_minimo), "$lt":float(umbral_maximo)}})
+        i=0
         for document in cursor:
-            archivo.write("<tr><td>"+str(document["number"])+"</td><td>"+str(document["date"].strftime(formato_hora))+"</td><td>"+str(document["date"].strftime(formato_fecha))+"</td></tr>")
-        archivo.write("\n{% endblock %}\n")
-        archivo.write('{% block umbrales %}\n')
-        archivo.write('<tr><td>La ultima vez que se genero un numero dentro de los umbrales marcados fue con fecha&nbsp;'+str(document["date"].strftime(formato_hora))+'&nbsp;'+str(document["date"].strftime(formato_fecha))+'con el numero&nbsp;'+str(document["number"])+'</td></tr>')
-        archivo.write("\n{% endblock %}\n")
-        archivo.close()
-        return render_template('home.html')
-    else:
-        return 'El umbral es de hola'
+            i=i+1
+        cursor = db.numbers.find({"number": {"$gt": float(umbral_minimo), "$lt":float(umbral_maximo)}})
+        ultimo_numero=document["number"]
+        ultima_hora=document["hour"]
+        ultima_fecha=document["date"]
+        return render_template('home.html',cursor=cursor,av=0,umbral=1,ultimo_numero=ultimo_numero,ultima_hora=ultima_hora,ultima_fecha=ultima_fecha)
 @app.route('/about')
 def about():
   return render_template('about.html')
