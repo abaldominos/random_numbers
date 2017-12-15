@@ -21,7 +21,8 @@ result = db.numbers.insert_one({"number" : float(elemento[0].strip('<br>')),"dat
 
 
 _hostname   = 'api.beebotte.com'
-_token      = '1510099700783_0F8OPqJwsCC25m20'
+_token      = '1513363009433_8m2ywpK0NiNpOPJ3'
 bbt = BBT(token = _token, hostname = _hostname)
 bbt.write("Numbers_Database", "numbers", float(elemento[0].strip('<br>')))
-bbt.write("Numbers_Database", "dates", str(fecha))
+bbt.write("Numbers_Database", "dates", str("13/12/17"))
+bbt.write("Numbers_Database", "hour", str("18:14"))

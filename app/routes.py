@@ -1,11 +1,11 @@
 from flask import Flask,flash, render_template, request
 from beebotte import *
 from pymongo import MongoClient
-app = Flask(__name__)
-app.secret_key = 'some_secret'
 flag=1
 client = MongoClient()
 db = client.test
+app = Flask(__name__)
+app.secret_key = 'some_secret'
 @app.route('/')
 def home():
     db = client.test
@@ -28,7 +28,7 @@ def average():
             flag=0
         else:
             _hostname   = 'api.beebotte.com'
-            _token      = '1510099700783_0F8OPqJwsCC25m20'
+            _token      = '1513363009433_8m2ywpK0NiNpOPJ3'
             bbt = BBT(token = _token, hostname = _hostname)
             records = bbt.read("Numbers_Database", "numbers", limit = 200)
             for document in records:
@@ -51,12 +51,11 @@ def umbral():
         cursor = db.numbers.find({"number": {"$gt": float(umbral_minimo), "$lt":float(umbral_maximo)}})
         i=0
         for document in cursor:
-            i=i+1
+            ultimo_numero=document["number"]
+            ultima_fecha=document["date"]
+            ultima_hora=document["hour"]
         cursor = db.numbers.find({"number": {"$gt": float(umbral_minimo), "$lt":float(umbral_maximo)}})
-        ultimo_numero=document["number"]
-        ultima_hora=document["hour"]
-        ultima_fecha=document["date"]
-        return render_template('home.html',cursor=cursor,av=0,umbral=1,ultimo_numero=ultimo_numero,ultima_hora=ultima_hora,ultima_fecha=ultima_fecha)
+        return render_template('home.html',cursor=cursor,av=0,umbral=1,ultima_fecha=ultima_fecha,ultima_hora=ultima_hora,ultimo_numero=ultimo_numero)
 @app.route('/about')
 def about():
   return render_template('about.html')
